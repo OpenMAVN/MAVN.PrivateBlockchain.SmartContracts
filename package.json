@@ -1,0 +1,32 @@
+{
+  "name": "falcon-os",
+  "private": true,
+  "scripts": {
+    "assign-role": "npx truffle exec ./scripts/assign-role.js",
+    "build-nuget": "./scripts/generate-nuget.sh",
+    "coverage": "npx solidity-coverage",
+    "deployment-metadata:clear": "rm -rf ./.openzeppelin",
+    "deployment-metadata:fetch": "npx truffle exec ./scripts/fetch-deployment-metadata.js",
+    "deployment-metadata:push": "npx truffle exec ./scripts/push-deployment-metadata.js",
+    "list-contracts": "npx truffle exec ./scripts/list-contracts.js",
+    "migrate": "npx truffle exec ./scripts/migrate.js --compile",
+    "set-treasury-account": "npx truffle exec ./scripts/set-treasury-account.js",
+    "test": "./scripts/test.sh"
+  },
+  "dependencies": {
+    "@azure/storage-blob": "10.5.0",
+    "@openzeppelin/contracts-ethereum-package": "git+https://github.com/LykkeCity/openzeppelin-quorum-contracts-ethereum-package.git#20e38b4dd9fe6a5424194e56a7b97eec5583e573",
+    "@openzeppelin/cli": "2.5.3",
+    "@truffle/hdwallet-provider": "1.0.23",
+    "dotenv": "8.2.0",
+    "truffle": "5.0.43",
+    "yargs": "14.2.0"
+  },
+  "devDependencies": {
+    "@openzeppelin/test-helpers": "0.5.3",
+    "chai": "4.2.0",
+    "erc1820": "0.0.2",
+    "ganache-cli": "6.7.0",
+    "solidity-coverage": "0.6.7"
+  }
+}
