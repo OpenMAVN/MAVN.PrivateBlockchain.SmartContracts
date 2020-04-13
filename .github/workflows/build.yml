@@ -9,15 +9,14 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
           node-version: '12.x'
-      - run: gcc --version
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Compile smart-contracts
         run: npx oz compile
