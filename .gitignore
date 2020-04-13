@@ -21,6 +21,7 @@
 
 # Well-known infrastructure folders
 /node_modules/
+**/node_modules/
 /packages/
 /target/
 **/aspnet_client/
