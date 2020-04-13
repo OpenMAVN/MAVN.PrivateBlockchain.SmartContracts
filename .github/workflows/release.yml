@@ -1,0 +1,130 @@
+name: release
+
+on:
+  release:
+    types:
+      - published
+        
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # Set release version
+      - name: Get release version from tag
+        id: version
+        uses: LykkeBusiness/get-semver-from-tag-action@v1.0.2
+        with:
+          tag: ${{ github.ref }}
+      - name: Set version for release
+        uses: allenevans/set-env@v1.0.0
+        with:
+          VERSION: ${{ steps.version.outputs.non-prefixed }}
+
+      # Prepare environment
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 2.2.207
+      - name: Install dependencies
+        run: npm install
+
+      # Compile smart-contracts
+      - name: Compile smart-contracts
+        run: npx oz compile
+
+      # Generate NuGet packages
+      - name: Generate library for BasicRedeemGateway contract
+        uses: ../actions/generate-contract-library
+        with:
+          contract: BasicRedeemGateway
+          functions:
+            - acceptTransfer
+            - rejectTransfer
+          events:
+            - TransferAccepted
+            - TransferReceived
+            - TransferRejected
+          version: $VERSION
+      - name: Generate library for CustomerRegistry contract
+        uses: ../actions/generate-contract-library
+        with:
+          contract: CustomerRegistry
+          functions:
+            - registerCustomer
+          events:
+            - CustomerRegistered
+          version: $VERSION
+      - name: Generate library for HospitalityRedeemGateway contract
+        uses: ../actions/generate-contract-library
+        with:
+          contract: HospitalityRedeemGateway
+          functions:
+            - acceptTransfer
+            - rejectTransfer
+          events:
+            - TransferAccepted
+            - TransferReceived
+            - TransferRejected
+          version: $VERSION
+      - name: Generate library for MVNGateway contract
+        uses: ../actions/generate-contract-library
+        with:
+          contract: MVNGateway
+          functions:
+            - linkPublicAccount
+            - setTransferToPublicNetworkFee
+            - transferFromPublicNetwork
+            - transferToPublicNetworkFee
+            - unlinkPublicAccount
+          events:
+            - PublicAccountLinked
+            - PublicAccountUnlinked
+            - TransferredFromPublicNetwork
+            - TransferredToPublicNetwork
+            - TransferToPublicNetworkFeeSet
+          version: $VERSION
+      - name: Generate library for MVNToken contract
+        uses: ../actions/generate-contract-library
+        with:
+          contract: MVNToken
+          functions:
+            - balanceOf
+            - burn
+            - collectFee
+            - decreaseStake
+            - increaseStake
+            - mint
+            - seizeFrom
+            - send
+            - stakeOf
+            - totalSupply
+          events:
+            - FeeCollected
+            - SeizeFrom
+            - Sent
+            - StakeDecreased
+            - StakeIncreased
+            - Minted
+            - Burned
+          version: $VERSION
+          
+      # Push NuGet packages
+      - name: Push NuGet packages
+        env:
+          API_KEY: ${{ secrets.NUGET_ORG_API_KEY }}
+        run: dotnet nuget push ./build/nugets/*.nupkg --source https://api.nuget.org/v3/index.json --api-key $API_KEY
+
+      # Create next release draft
+      - name: Create next release draft
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: next
+          release_name: next
+          body:
+          draft: true
